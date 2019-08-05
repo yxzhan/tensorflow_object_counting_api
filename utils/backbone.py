@@ -18,7 +18,7 @@ def set_model(model_name):
 	path_to_ckpt = model_name + '/frozen_inference_graph.pb'
 
 	# List of the strings that is used to add correct label for each box.
-	path_to_labels = os.path.join('data', 'mscoco_label_map.pbtxt')
+	path_to_labels = os.path.join('data', 'label.pbtxt')
 
 	num_classes = 90
 

@@ -196,7 +196,8 @@ def draw_bounding_box_on_image(current_frame_number,image,
     predicted_color = color_recognition_api.color_recognition(detected_vehicle_image)    
   
   try:
-    font = ImageFont.truetype('arial.ttf', 16)
+    # font = ImageFont.truetype('arial.ttf', 16)
+    font = ImageFont.truetype('/Library/Fonts/Arial.ttf', 40)
   except IOError:
     font = ImageFont.load_default()
 

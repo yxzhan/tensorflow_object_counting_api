@@ -9,6 +9,7 @@ import csv
 import cv2
 import numpy as np
 from utils import visualization_utils as vis_util
+import time;
 
 # Variables
 total_passed_vehicle = 0  # using it to count vehicles
@@ -18,13 +19,14 @@ def cumulative_object_counting_x_axis(input_video, detection_graph, category_ind
 
         # input video
         cap = cv2.VideoCapture(input_video)
-
         height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         fps = int(cap.get(cv2.CAP_PROP_FPS))
+        total_frame = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
 
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
-        output_movie = cv2.VideoWriter('the_output.avi', fourcc, fps, (width, height))
+        output_movie = cv2.VideoWriter(f"{input_video}-output.avi", fourcc, fps, (width, height))
 
         total_passed_vehicle = 0
         speed = "waiting..."
@@ -50,7 +52,7 @@ def cumulative_object_counting_x_axis(input_video, detection_graph, category_ind
             # for all the frames that are extracted from input video
             while(cap.isOpened()):
                 ret, frame = cap.read()                
-
+                frameId = cap.get(1)
                 if not  ret:
                     print("end of the video file...")
                     break
@@ -60,10 +62,14 @@ def cumulative_object_counting_x_axis(input_video, detection_graph, category_ind
                 # Expand dimensions since the model expects images to have shape: [1, None, None, 3]
                 image_np_expanded = np.expand_dims(input_frame, axis=0)
 
+                start = time.perf_counter()
+
                 # Actual detection.
                 (boxes, scores, classes, num) = sess.run(
                     [detection_boxes, detection_scores, detection_classes, num_detections],
                     feed_dict={image_tensor: image_np_expanded})
+                
+                print(f"Took {time.perf_counter()-start:.2f}s")
 
                 # insert information text to video frame
                 font = cv2.FONT_HERSHEY_SIMPLEX
@@ -94,7 +100,7 @@ def cumulative_object_counting_x_axis(input_video, detection_graph, category_ind
                 font = cv2.FONT_HERSHEY_SIMPLEX
                 cv2.putText(
                     input_frame,
-                    'Detected Pedestrians: ' + str(total_passed_vehicle),
+                    'Detected Object: ' + str(total_passed_vehicle),
                     (10, 35),
                     font,
                     0.8,
@@ -116,8 +122,8 @@ def cumulative_object_counting_x_axis(input_video, detection_graph, category_ind
                     )
 
                 output_movie.write(input_frame)
-                print ("writing frame")
-                #cv2.imshow('object counting',input_frame)
+                print (f"writing frame {frameId}, total: {total_frame}")
+                cv2.imshow('object counting',input_frame)
 
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                         break
